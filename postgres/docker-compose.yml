@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  usuarios_postgres:
+    image: postgres:15-alpine
+    container_name: usuarios_db_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_EXTERNAL_PORT}:5432"
+    volumes:
+      - usuarios_db_data:/var/lib/postgresql/data
+      - ./init/:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservices-net
+
+volumes:
+  usuarios_db_data:
+
+networks:
+  microservices-net:
+    external: true
